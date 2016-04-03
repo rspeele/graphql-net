@@ -21,6 +21,15 @@ namespace GraphQL.Net
             return baseType != null && IsAssignableToGenericType(baseType, genericType);
         }
 
+        public static IEnumerable<string> GetArgNames<TArgs>()
+        {
+            var paramlessCtor = typeof(TArgs).GetConstructors().FirstOrDefault(c => c.GetParameters().Length == 0);
+            if (paramlessCtor != null)
+                return typeof(TArgs).GetProperties().Where(p => p.CanWrite).Select(p => p.Name);
+            var anonTypeCtor = typeof(TArgs).GetConstructors().Single();
+            return anonTypeCtor.GetParameters().Select(p => p.Name);
+        }
+
         /// <summary>
         /// Instantiate an object of <typeparamref name="TArgs"/> given a list of <paramref name="inputs"/>.
         /// This works for objects with parameterless constructors or anonymous types.
